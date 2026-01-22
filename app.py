@@ -12,7 +12,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.chains import RetrievalQA
+from langchain.chains.retrieval_qa.base import RetrievalQA
 
 def get_rag_chain(vectorstore):
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
@@ -25,7 +25,7 @@ def get_rag_chain(vectorstore):
     )
     return qa_chain
 
-from langchain_core.prompts import ChatPromptTemplate
+
 
 # --- CONFIGURATION ---
 # In a real app, use st.secrets or environment variables
@@ -265,23 +265,8 @@ def get_vectorstore(pdf_file):
     vectorstore = FAISS.from_documents(splits, embeddings)
     return vectorstore
 
-def get_rag_chain(vectorstore):
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
     
-    prompt = ChatPromptTemplate.from_template("""
-    Answer the user's question based ONLY on the context provided below.
-    If the context doesn't contain the answer, say "I don't have that information in my documents."
-    
-    Context:
-    {context}
-    
-    Question:
-    {input}
-    """)
-    
-    document_chain = create_stuff_documents_chain(llm, prompt)
-    retrieval_chain = create_retrieval_chain(vectorstore.as_retriever(), document_chain)
-    return retrieval_chain
 
 def detect_booking_intent(user_input):
     """Simple keyword/LLM check to see if user wants to book."""
