@@ -15,18 +15,39 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.chains.retrieval_qa.base import RetrievalQA
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
 
 def get_rag_chain(vectorstore):
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever=vectorstore.as_retriever(),
-        chain_type="stuff",
-        return_source_documents=False
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+
+    prompt = ChatPromptTemplate.from_template(
+        """You are a helpful dental clinic assistant.
+Use the following context to answer the question.
+If you don't know the answer, say you don't know.
+
+Context:
+{context}
+
+Question:
+{question}
+
+Answer:"""
     )
-    return qa_chain
+
+    rag_chain = (
+        {
+            "context": retriever,
+            "question": RunnablePassthrough(),
+        }
+        | prompt
+        | llm
+    )
+
+    return rag_chain
 
 
 
@@ -503,8 +524,8 @@ if prompt := st.chat_input("Type your message..."):
         else:
             if st.session_state.vectorstore:
                 rag_chain = get_rag_chain(st.session_state.vectorstore)
-                response = rag_chain.invoke({"query": prompt})
-                response_text = response["result"]
+                response = rag_chain.invoke(prompt)
+                response_text = response.content
             else:
                 response_text = (
                     "Please upload a PDF brochure in the sidebar so I can answer your questions, "
