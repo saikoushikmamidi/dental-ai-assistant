@@ -113,38 +113,66 @@ def get_logs():
 # --- EMAIL LOGIC ---
 def send_email_confirmation(to_email, name, booking_id, date, time, booking_type="Dental Consultation"):
     if not SMTP_EMAIL or not SMTP_PASSWORD:
-        return False # Skip if secrets aren't set
+        return False  # Skip if secrets aren't set
 
     try:
-        subject = "🦷 Appointment Confirmation - SmileCare Dental"
+        subject = "🦷 Appointment Confirmation | SmileCare Dental Clinic"
+
         body = f"""
-        Hello {name},
+Dear {name},
 
-        ✅ Your appointment is confirmed!
+Thank you for choosing **SmileCare Dental Clinic**! 😊  
+We’re happy to confirm your appointment. Please find the details below:
 
-        📌 Details:
-        ID: {booking_id}
-        Date: {date}
-        Time: {time}
-        Type: {booking_type}
+━━━━━━━━━━━━━━━━━━━━━━
+📌 **APPOINTMENT DETAILS**
+━━━━━━━━━━━━━━━━━━━━━━
+🆔 Booking ID   : {booking_id}
+🦷 Service      : {booking_type}
+📅 Date         : {date}
+⏰ Time         : {time}
+📍 Location     : SmileCare Dental Clinic
 
-        See you soon!
-        SmileCare Team
+━━━━━━━━━━━━━━━━━━━━━━
+ℹ️ **IMPORTANT INFORMATION**
+━━━━━━━━━━━━━━━━━━━━━━
+• Please arrive **10 minutes early** for registration  
+• Carry a valid ID (if required)  
+• If you are feeling unwell, kindly inform us in advance  
+
+━━━━━━━━━━━━━━━━━━━━━━
+📞 **NEED HELP OR CHANGES?**
+━━━━━━━━━━━━━━━━━━━━━━
+If you need to reschedule or cancel your appointment,  
+please reply to this email or contact us directly.
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+We look forward to taking care of your smile! 😄  
+Have a wonderful day.
+
+Warm regards,  
+**SmileCare Dental Clinic**  
+📧 {SMTP_EMAIL}
         """
+
         msg = MIMEText(body)
         msg["Subject"] = subject
         msg["From"] = SMTP_EMAIL
         msg["To"] = to_email
-        
+
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
         server.login(SMTP_EMAIL, SMTP_PASSWORD)
         server.sendmail(SMTP_EMAIL, [to_email], msg.as_string())
         server.quit()
+
         return True
+
     except Exception as e:
         print(f"Email Error: {e}")
         return False
+
 
 # --- RAG / AI LOGIC ---
 @st.cache_resource
