@@ -12,8 +12,19 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.chains import create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import RetrievalQA
+
+def get_rag_chain(vectorstore):
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=vectorstore.as_retriever(),
+        chain_type="stuff",
+        return_source_documents=False
+    )
+    return qa_chain
+
 from langchain_core.prompts import ChatPromptTemplate
 
 # --- CONFIGURATION ---
@@ -502,16 +513,18 @@ if prompt := st.chat_input("Type your message..."):
             response_text = "I can help you book an appointment. First, strictly what is your **Full Name**?"
 
         # 🔹 STEP 3: RAG / DOCUMENT RESPONSE
+        # 🔹 STEP 3: RAG / DOCUMENT RESPONSE
         else:
             if st.session_state.vectorstore:
                 rag_chain = get_rag_chain(st.session_state.vectorstore)
-                response = rag_chain.invoke({"input": prompt})
-                response_text = response["answer"]
+                response = rag_chain.invoke({"query": prompt})
+                response_text = response["result"]
             else:
                 response_text = (
                     "Please upload a PDF brochure in the sidebar so I can answer your questions, "
                     "or just say **'Book'** to schedule an appointment."
                 )
+
 
 
     # COLLECTING NAME
