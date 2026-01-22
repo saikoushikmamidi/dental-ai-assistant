@@ -7,6 +7,9 @@ from datetime import datetime
 # --- EMAIL CONFIG ---
 SMTP_EMAIL = st.secrets["SMTP_EMAIL"]
 SMTP_PASSWORD = st.secrets["SMTP_PASSWORD"]
+import os
+
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -31,9 +34,7 @@ def get_rag_chain(vectorstore):
 # In a real app, use st.secrets or environment variables
 # st.secrets["OPENAI_API_KEY"]
 
-import os
 
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 # --- DATABASE SETUP ---
 def init_db():
