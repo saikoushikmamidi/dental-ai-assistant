@@ -92,13 +92,17 @@ This project fully satisfies the given **AI Booking Assistant – Problem Statem
 
 ## 📁 Project Structure
 
+> 📄 **Note on PDF Handling (Temp PDF):**
+> The application uses a temporary file (`temp.pdf`) internally when a PDF is uploaded. This file is **only a test/processing artifact** created at runtime to extract text for RAG and is **not stored permanently** or committed to the repository.
+
 ```
 📦 dental-ai-assistant
  ┣ 📜 app.py                # Main Streamlit application
  ┣ 📜 requirements.txt      # Python dependencies
  ┣ 📜 runtime.txt           # Python runtime version
  ┣ 📜 README.md             # Project documentation
- ┗ 📜 bookings.db           # SQLite database (auto-created)
+ ┣ 📜 bookings.db           # SQLite database (auto-created)
+ ┗ 📜 temp.pdf              # Temporary test PDF used for RAG processing (runtime only)
 ```
 
 ---
